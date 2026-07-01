@@ -1,0 +1,22 @@
+# ProjectSites Chatwoot — Custom Docker Image
+#
+# Extends the official chatwoot/chatwoot image with:
+#   1. Pre-seeded ProjectSites labels, macros, and web widget inbox
+#   2. Widget branding override via env vars
+#   3. Custom health check endpoint
+#
+# Build:
+#   docker build -f Dockerfile.projectsites -t ghcr.io/professormanhattan/chatwoot-projectsites:latest .
+
+FROM chatwoot/chatwoot:latest
+
+ENV INSTALLATION_NAME="ProjectSites Support" \
+    BRAND_NAME="ProjectSites" \
+    BRAND_URL="https://projectsites.dev" \
+    PROJECTSITES_BRAND_COLOR="#00e5ff"
+
+COPY projectsites/ /app/projectsites/
+RUN chmod +x /app/projectsites/init.sh
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:3000/app/login || exit 1
